@@ -19,6 +19,9 @@ Simply
 
 > g++ z2.cpp; ./a.out
 
+> gfortran z2.f90; ./a.out
+
 > python3 z2.py
+
 
 ## Comments are welcomed.

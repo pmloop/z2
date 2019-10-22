@@ -8,7 +8,7 @@
 import numpy as np
 from itertools import product
 
-N = 20
+N = 10
 latt = np.ones(N**4*4).reshape([N, N, N, N, 4])
 
 
