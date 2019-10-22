@@ -1,12 +1,14 @@
 program main
+        use iso_fortran_env
         implicit none
+        integer, parameter :: dp = REAL64
 
-        integer, parameter :: N = 20
+        integer, parameter :: N = 40
         integer, dimension(N,N,N,N,4) :: latt
 
-        real :: beta
-        real :: dbeta = 0.01
-        real :: actionS
+        real(dp) :: beta
+        real(dp) :: dbeta = 0.01
+        real(dp) :: actionS
         integer :: i1
 
         ! coldstart
@@ -20,8 +22,8 @@ program main
         end do
 
         ! hot -> cold
-        do i1 = 100, 1, -1
-                beta = 1. - i1*dbeta
+        do i1 = 1, 100
+                beta = i1*dbeta
                 call sweep(N, beta, latt, actionS)
                 print*, beta, actionS
         end do
@@ -54,21 +56,24 @@ program main
 
         subroutine sweep(N, beta, lat, actionS)
                 
+                use iso_fortran_env
                 implicit none
+                integer, parameter :: dp = REAL64
+
                 integer, intent(in) :: N
-                real, intent(in) :: beta
+                real(dp), intent(in) :: beta
                 integer, dimension(N,N,N,N,4), intent(inout) :: lat
-                real, intent(out) :: actionS
+                real(dp), intent(out) :: actionS
 
                 integer :: i1, i2, i3, i4, d, dperp
-                real :: r_num
-                real, dimension(N,N,N,N,4):: rand_arr
+                real(dp) :: r_num
+                real(dp), dimension(N,N,N,N,4):: rand_arr
 
                 integer, dimension(4) :: xvec
-                real :: staple
-                real :: staplesum
-                real :: bplus
-                real :: bminus
+                real(dp) :: staple
+                real(dp) :: staplesum
+                real(dp) :: bplus
+                real(dp) :: bminus
 
                 call random_seed()
                 call random_number(rand_arr)
@@ -109,8 +114,9 @@ program main
                 bplus = bplus / (bplus + bminus)
 
                 r_num = rand_arr(i1, i2, i3, i4, d)
+                !call random_number(r_num)
 
-                if (r_num < bplus) then
+                if (r_num <= bplus) then
                         lat(i1, i2, i3, i4, d) = 1
                         actionS = actionS + staplesum/N**4/24.
                 else

@@ -11,7 +11,7 @@
 using namespace std;
 
 // the lattice is of dimensions SIZE**4
-#define SIZE 20
+#define SIZE 40
 
 class config {
 
