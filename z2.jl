@@ -1,29 +1,26 @@
 function main()
 
-N = 20
-latt = Array{Int64}(undef, N, N, N, N, 4)
-# latt .= 1
-# latt = ones(Int64, (N, N, N, N, 4))
+N = 40
+latt = ones(Int64, (N, N, N, N, 4))
 
 # utility
-function moveup(xvec, d)
-    #  xvec is mutable
-    if xvec[d] == N
+function mvup!(xvec, d)
+    #  xvec would be modified
+    xvec[d] += 1
+    if xvec[d] == N + 1
         xvec[d] = 1
-    else
-        xvec[d] += 1
     end
-    # xvec[d] = xvec[d] % N
+    return nothing
 end
 
 
-function movedown(xvec, d)
-    #  xvec is mutable
-    if xvec[d] == 1
+function mvdown!(xvec, d)
+    #  xvec would be modified
+    xvec[d] -= 1
+    if xvec[d] == 0
         xvec[d] = N
-    else
-        xvec[d] -= 1
     end
+    return nothing
 end
 
 
@@ -34,34 +31,35 @@ end
 
 function randomstart()
 
-    sites = collect(Base.product(1:N, 1:N, 1:N, 1:N, 1:4))
-
-    for site in sites
-        x1, x2, x3, x4, d = site
+    # col. based
+    for d in 1:4,
+        i4 in 1:N,
+        i3 in 1:N,
+        i2 in 1:N,
+        i1 in 1:N
 
         spin = rand(0:1)
         if spin == 0
             spin = -1
         end
+        latt[i1, i2, i3, i4, d] = spin
 
-        latt[x1, x2, x3, x4, d] = spin
     end
-
 end
 
 
 function update(beta)
 
-    sites = collect(Base.product(1:N, 1:N, 1:N, 1:N, 1:4))
-
     action = 0.
 
-    for site in sites
+    # col. based
+    for d in 1:4,
+        i4 in 1:N,
+        i3 in 1:N,
+        i2 in 1:N,
+        i1 in 1:N
 
-        x1, x2, x3, x4, d = site
-        # print("$x")
-        x = [x1, x2, x3, x4]
-        # d = site[5]
+        x = [i1, i2, i3, i4]
 
         # following M. Creutz
         # staples around link(1->4)
@@ -76,27 +74,24 @@ function update(beta)
             if dperp != d
 
                 # plaquette 1234
-                movedown(x, dperp)
-
-                # print("here")
-
+                mvdown!(x, dperp)
                 staple = latt[x[1], x[2], x[3], x[4], dperp]
                 staple *= latt[x[1], x[2], x[3], x[4], d]
-                moveup(x, d)
+                mvup!(x, d)
                 staple *= latt[x[1], x[2], x[3], x[4], dperp]
-                moveup(x, dperp)
+                mvup!(x, dperp)
                 staplesum += staple
 
                 # plaquette 4561
                 staple = latt[x[1], x[2], x[3], x[4], dperp]
-                moveup(x, dperp)
-                movedown(x, d)
+                mvup!(x, dperp)
+                mvdown!(x, d)
                 staple *= latt[x[1], x[2], x[3], x[4], d]
-                movedown(x, dperp)
+                mvdown!(x, dperp)
                 staple *= latt[x[1], x[2], x[3], x[4], dperp]
                 staplesum += staple
-            end
 
+            end
         end
 
         # calculate the Boltzmann weight
@@ -108,10 +103,10 @@ function update(beta)
         r = rand()
 
         if r <= bplus
-            latt[x1, x2, x3, x4, d] = 1
+            latt[i1, i2, i3, i4, d] = 1
             action += staplesum
         else
-            latt[x1, x2, x3, x4, d] = -1
+            latt[i1, i2, i3, i4, d] = -1
             action -= staplesum
         end
     end
@@ -126,14 +121,14 @@ end
 
     coldstart()
     # randomstart()
-    println("cold -> hot")
+    println("#cold -> hot")
     for beta in beta_arr1
         action = update(beta)
         println("$beta $action")
     end
 
     # already hot
-    println("hot -> cold")
+    println("#hot -> cold")
     for beta in beta_arr2
         action = update(beta)
         println("$beta $action")
@@ -142,4 +137,4 @@ end
 end
 
 
-main()
+@time main()
