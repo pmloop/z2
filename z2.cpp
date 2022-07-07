@@ -11,7 +11,7 @@
 using namespace std;
 
 // the lattice is of dimensions SIZE**4
-#define SIZE 40
+#define SIZE 50
 
 class config {
 
@@ -188,7 +188,7 @@ int main(){
   // parameters
   double beta_min = 0.;
   double beta_max = 1.;
-  const int N_beta = 100;
+  const int N_beta = 50;
   double action = 0.;
   double beta, dbeta;
 

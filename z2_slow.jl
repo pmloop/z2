@@ -2,7 +2,7 @@ function main()
 
     # Z(2) gauge theory in 4D
 
-    N = 40
+    N = 20
     latt = ones(Int64, (N, N, N, N, 4))
 
     # utility
@@ -52,6 +52,9 @@ function main()
 
             x = [i1, i2, i3, i4]
 
+            ff(xx) = ntuple(i1 -> xx[i1], 4)
+
+
             # following M. Creutz
             # staples around link(1->4)
             #    dperp        6--5
@@ -64,6 +67,49 @@ function main()
             for dperp = 1:4
                 if dperp != d
 
+                    # slow if array is involved
+                    # plaquette 1234
+                    mvdown!(x, dperp)
+                    staple = latt[x[1:4]..., dperp]
+                    staple *= latt[x[1:4]..., d]
+                    mvup!(x, d)
+                    staple *= latt[x[1:4]..., dperp]
+                    mvup!(x, dperp)
+                    staplesum += staple
+
+                    # plaquette 4561
+                    staple = latt[x[1:4]..., dperp]
+                    mvup!(x, dperp)
+                    mvdown!(x, d)
+                    staple *= latt[x[1:4]..., d]
+                    mvdown!(x, dperp)
+                    staple *= latt[x[1:4]..., dperp]
+                    staplesum += staple
+
+                    #=
+                    # plaquette 1234
+                    mvdown!(x, dperp)
+                    staple = latt[ff(x)..., dperp]
+                    staple *= latt[ff(x)..., d]
+                    mvup!(x, d)
+                    staple *= latt[ff(x)..., dperp]
+                    mvup!(x, dperp)
+                    staplesum += staple
+
+                    # plaquette 4561
+                    staple = latt[ff(x)..., dperp]
+                    mvup!(x, dperp)
+                    mvdown!(x, d)
+                    staple *= latt[ff(x)..., d]
+                    mvdown!(x, dperp)
+                    staple *= latt[ff(x)..., dperp]
+                    staplesum += staple
+                    =#
+
+                    # staple = latt[x..., dperp]
+                    # will be slow, do you know why?
+
+                    #=
                     # plaquette 1234
                     mvdown!(x, dperp)
                     staple = latt[x[1], x[2], x[3], x[4], dperp]
@@ -81,6 +127,7 @@ function main()
                     mvdown!(x, dperp)
                     staple *= latt[x[1], x[2], x[3], x[4], dperp]
                     staplesum += staple
+                    =#
 
                 end
             end
@@ -107,8 +154,8 @@ function main()
 
 
     # beta_c = 0.44
-    beta_arr1 = range(1, stop = 0, length = 100)
-    beta_arr2 = range(0, stop = 1, length = 100)
+    beta_arr1 = range(1, stop = 0, length = 25)
+    beta_arr2 = range(0, stop = 1, length = 25)
 
     coldstart()
     # randomstart()

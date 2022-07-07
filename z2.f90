@@ -3,26 +3,30 @@ program main
         implicit none
         integer, parameter :: dp = REAL64
 
-        integer, parameter :: N = 40
+        integer, parameter :: N = 50
         integer, dimension(N,N,N,N,4) :: latt
 
         real(dp) :: beta
-        real(dp) :: dbeta = 0.01
+        real(dp) :: dbeta
         real(dp) :: actionS
         integer :: i1
+        integer :: NT
 
         ! coldstart
         latt = 1
 
+        NT = 50
+        dbeta = 1.0/NT
+
         ! cold -> hot
-        do i1 = 1, 100
+        do i1 = 1, NT
                 beta = 1. - i1*dbeta
                 call sweep(N, beta, latt, actionS)
                 print*, beta, actionS
         end do
 
         ! hot -> cold
-        do i1 = 1, 100
+        do i1 = 1, NT
                 beta = i1*dbeta
                 call sweep(N, beta, latt, actionS)
                 print*, beta, actionS

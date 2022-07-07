@@ -1,36 +1,23 @@
-function main(latt)
+function main(N = 50)
 
     # Z(2) gauge theory in 4D (improved)
-    N = size(latt, 1)
+    latt = ones(Int64, (N, N, N, N, 4))
     links = Iterators.product(1:N, 1:N, 1:N, 1:N, 1:4)
 
     # utility
     function mvup(x, d)
         # tuple -> tuple
-        function _f(i1::Int)
-            if i1 != d
-                return x[i1]
-            elseif i1 == d && x[i1] != N
-                return x[i1] + 1
-            else
-                return 1
-            end
-        end
-        return ntuple(_f, 4)
+        f1(i1) = x[i1]
+        f2(i1) = x[i1] == N ? 1 : x[i1] + 1
+        f(i1) = i1 != d ? f1(i1) : f2(i1)
+        return ntuple(f, 4)
     end
-
     function mvdown(x, d)
         # tuple -> tuple
-        function _f(i1::Int)
-            if i1 != d
-                return x[i1]
-            elseif i1 == d && x[i1] != 1
-                return x[i1] - 1
-            else
-                return N
-            end
-        end
-        return ntuple(_f, 4)
+        f1(i1) = x[i1]
+        f2(i1) = x[i1] == 1 ? N : x[i1] - 1
+        f(i1) = i1 != d ? f1(i1) : f2(i1)
+        return ntuple(f, 4)
     end
 
     function coldstart!()
@@ -38,13 +25,12 @@ function main(latt)
     end
 
     function randomstart!()
-        for link in links
-            rand(0:1) == 0 ? latt[link] = -1 : latt[link] = 1
-        end
+        latt .= rand([-1, 1])
     end
 
     function staplecal(link)
 
+        # x is a tuple
         x = link[1:4]
         d = link[5]
 
@@ -62,6 +48,7 @@ function main(latt)
 
                 # plaquette 1234
                 x = mvdown(x, dperp)
+                # x is tuple, and hence x... is fast (forum question)
                 link1 = latt[x..., dperp]
                 link2 = latt[x..., d]
                 x = mvup(x, d)
@@ -105,24 +92,22 @@ function main(latt)
     end
 
     # beta_c = 0.44
-    beta_arr1 = range(1, stop = 0, length = 100)
-    beta_arr2 = range(0, stop = 1, length = 100)
+    beta_arr1 = range(1, stop = 0, length = 50)
+    beta_arr2 = range(0, stop = 1, length = 50)
 
     coldstart!()
     # randomstart()
     println("#cold -> hot")
     for beta in beta_arr1
-        println([beta, update(beta)])
+        println([beta, " ", update(beta)]...)
     end
 
     # already hot
     println("#hot -> cold")
     for beta in beta_arr2
-        println([beta, update(beta)])
+        println([beta, " ", update(beta)]...)
     end
 
 end
 
-N = 40
-latt1 = ones(Int64, (N, N, N, N, 4));
-@time main(latt1)
+@time main()

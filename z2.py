@@ -133,8 +133,8 @@ def main():
 
     # beta_c = 0.44
 
-    beta_arr1 = np.linspace(1., 0., 40)
-    beta_arr2 = np.linspace(0., 1., 40)
+    beta_arr1 = np.linspace(1., 0., 25)
+    beta_arr2 = np.linspace(0., 1., 25)
 
     coldstart()
     print('# cold -> hot')

@@ -91,7 +91,7 @@ int main(){
   double beta, dbeta, action;
   srand48(1234L);  /* initialize random number generator */
   /* do your experiment here; this example is a thermal cycle */
-  dbeta=.01;
+  dbeta=.02;
   coldstart();
   /* heat it up */
   for (beta=1; beta>0.0; beta-=dbeta){
